@@ -1,0 +1,9 @@
+**/.idea/
+**/.lift/
+**/.DS_Store
+
+# ignore the stuff downloaded from the course's provided project folder.
+**/*.png
+**/*.txt
+# but don't ignore the .txt files I created for test input
+![tT]est*.txt
