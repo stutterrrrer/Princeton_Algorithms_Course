@@ -6,14 +6,13 @@
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-// don't use virtual sites - avoid backwash problem
-public class Percolation {
+public class PercolationWithVirtualSites {
     private final int n;
     private WeightedQuickUnionUF unionFind;
     private boolean[] isOpen;
     private final int top, bottom;
 
-    public Percolation(int n) {
+    public PercolationWithVirtualSites(int n) {
         if (n <= 0) throw new IllegalArgumentException("n must be positive");
         this.n = n;
         // the n * n grid plus 2 virtual sites.
@@ -21,6 +20,7 @@ public class Percolation {
         isOpen = new boolean[n * n + 2];
         for (int i = 0; i < n * n; i++) isOpen[i] = false;
         // the 2 virtual sites are always open, waiting to be connected.
+        // but utilizing virtual sites have the back-wash problem.
         top = n * n;
         bottom = n * n + 1;
         isOpen[top] = true;
