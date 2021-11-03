@@ -6,13 +6,13 @@
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-public class PercolationWithVirtualSites {
+public class PercolationWithBackwash {
     private final int n;
     private WeightedQuickUnionUF unionFind;
     private boolean[] isOpen;
     private final int top, bottom;
 
-    public PercolationWithVirtualSites(int n) {
+    public PercolationWithBackwash(int n) {
         if (n <= 0) throw new IllegalArgumentException("n must be positive");
         this.n = n;
         // the n * n grid plus 2 virtual sites.
