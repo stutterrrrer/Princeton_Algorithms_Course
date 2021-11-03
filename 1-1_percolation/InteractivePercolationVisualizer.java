@@ -25,7 +25,7 @@ public class InteractivePercolationVisualizer {
         StdOut.println(n);
 
         StdDraw.enableDoubleBuffering();
-        PercolationWithoutVirtualBottom perc = new PercolationWithoutVirtualBottom(n);
+        Percolation perc = new Percolation(n);
         PercolationVisualizer.draw(perc, n);
         StdDraw.show();
 
