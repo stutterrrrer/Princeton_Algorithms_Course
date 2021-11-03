@@ -6,25 +6,26 @@
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-public class PercolationWithBackwash {
+// don't use virtual sites - avoid backwash problem
+public class PercolationWithoutVirtualBottom {
     private final int n;
     private WeightedQuickUnionUF unionFind;
     private boolean[] isOpen;
-    private final int top, bottom;
+    // only use a top virtual site but not bottom, to avoid backwash problem
+    private final int top;
 
-    public PercolationWithBackwash(int n) {
+    public PercolationWithoutVirtualBottom(int n) {
         if (n <= 0) throw new IllegalArgumentException("n must be positive");
         this.n = n;
         // the n * n grid plus 2 virtual sites.
         unionFind = new WeightedQuickUnionUF(n * n + 2);
         isOpen = new boolean[n * n + 2];
-        for (int i = 0; i < n * n; i++) isOpen[i] = false;
-        // the 2 virtual sites are always open, waiting to be connected.
-        // but utilizing virtual sites have the back-wash problem.
+        for (int i = 0; i < isOpen.length; i++) isOpen[i] = false;
+        /*
+        top doesn't need to be open,
+        since it will be connected "manually" in the connectNewOpenSite method,
+        */
         top = n * n;
-        bottom = n * n + 1;
-        isOpen[top] = true;
-        isOpen[bottom] = true;
     }
 
     public void open(int row, int col) {
@@ -40,7 +41,6 @@ public class PercolationWithBackwash {
     private void connectNewOpenSite(int row, int col) {
         int thisSite = siteIndex(row, col);
         if (row == 1) unionFind.union(thisSite, top);
-        if (row == n) unionFind.union(thisSite, bottom);
         int[] ints = adjacentSites(row, col);
         for (int i : ints) {
             if (isOpen[i]) unionFind.union(thisSite, i);
@@ -74,7 +74,7 @@ public class PercolationWithBackwash {
     }
 
     // change to private after testing
-    public int siteIndex(int row, int col) {
+    private int siteIndex(int row, int col) {
         if (col < 1 || col > n || row < 1 || row > n) return -1;
         return (row - 1) * n + col - 1;
     }
@@ -94,18 +94,21 @@ public class PercolationWithBackwash {
     }
 
     public boolean percolates() {
-        return unionFind.find(top) == unionFind.find(bottom);
+        // for each site in the bottom row:
+        for (int i = siteIndex(n, 1), col = 1; i < n * n; i++, col++) {
+            if (isOpen[i]) {
+                if (isFull(n, col)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public int numberOfOpenSites() {
         int count = 0;
-        for (boolean bool : isOpen) {
-            if (bool) count++;
-        }
-        // minus 2 because the 2 virtual top and bottom sites are always open.
-        return count - 2;
-    }
-
-    public static void main(String[] args) {
+        for (boolean bool : isOpen) count += bool ? 1 : 0;
+        // top virtual site is closed, doesn't need to adjust for that.
+        return count;
     }
 }

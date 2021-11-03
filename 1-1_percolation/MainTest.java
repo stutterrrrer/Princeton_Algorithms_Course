@@ -10,14 +10,14 @@ import java.nio.file.Paths;
 public class MainTest {
     public static void main(String[] args) {
         String fileName = args[0];
-        Percolation grid = null;
+        PercolationWithoutVirtualBottom grid = null;
         // some tests don't open all sites before testing.
         int openSiteCount = 0;
 
         try (Scanner fileReader = new Scanner(Paths.get(fileName))) {
             // first line of the input file is always one integer representing grid dimension.
             int n = Integer.parseInt(fileReader.nextLine());
-            grid = new Percolation(n);
+            grid = new PercolationWithoutVirtualBottom(n);
             while (fileReader.hasNextLine()) {
                 String nextLine = fileReader.nextLine();
                 if (nextLine.isEmpty()) break;
