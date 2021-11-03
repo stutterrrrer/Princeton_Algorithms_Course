@@ -1,18 +1,9 @@
-/* *****************************************************************************
- *  Name:              Alan Turing
- *  Coursera User ID:  123456
- *  Last modified:     1/1/2019
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
-    private Percolation percolation;
     private int n;
     private final int trials;
-    private int[] allSites;
-    private int blockedCount;
     private double[] percolationThresholds;
 
     public PercolationStats(int n, int trials) {
@@ -22,41 +13,34 @@ public class PercolationStats {
         this.n = n;
         this.trials = trials;
         percolationThresholds = new double[trials];
-        resetPercolation();
-    }
-
-    private void resetPercolation() {
-        percolation = new Percolation(n);
-        allSites = new int[n * n];
-        for (int i = 0; i < allSites.length; i++) {
-            allSites[i] = i;
-        }
-        blockedCount = allSites.length;
+        runSimulations();
     }
 
     private void runSimulations() {
+        // for each trial:
         for (int i = 0; i < trials; i++) {
-            // for each trial:
-            while (!percolation.percolates()) {
-                openRandomSite();
+            // reset everything:
+            Percolation percolation = new Percolation(n);
+            int[] allSites = new int[n * n];
+            for (int j = 0; j < allSites.length; j++) allSites[j] = j;
+
+            for (int blockedCount = allSites.length; !percolation.percolates(); blockedCount--) {
+                openRandomSiteAndSwapToEnd(percolation, allSites, blockedCount);
             }
             percolationThresholds[i] = (double) percolation.numberOfOpenSites() / (n * n);
-            // after each trial, reset all opened sites to be blocked again.
-            resetPercolation();
         }
     }
 
     // change it to private after unit-testing.
-    private void openRandomSite() {
+    private void openRandomSiteAndSwapToEnd(Percolation percolation, int[] allSites,
+                                            int blockedCount) {
         // open the site, then move it to the end of the allSites array
         int openedSiteIndexInAllSitesArray = StdRandom.uniform(0, blockedCount);
         int openedSiteIndexInUnionFind = allSites[openedSiteIndexInAllSitesArray];
         int[] rowCol = rowAndColOfSiteIndex(openedSiteIndexInUnionFind);
         percolation.open(rowCol[0], rowCol[1]);
 
-        blockedCount--; // blockedCount's max value is n^2 - 1;
-
-        // swap positions of the openedSiteIndexInUnionFind and the last blocked site.
+        blockedCount--;
         int temp = allSites[blockedCount];
         allSites[blockedCount] = openedSiteIndexInUnionFind;
         allSites[openedSiteIndexInAllSitesArray] = temp;
@@ -101,7 +85,6 @@ public class PercolationStats {
         int n = Integer.parseInt(args[0]);
         int trials = Integer.parseInt(args[1]);
         PercolationStats percolationStats = new PercolationStats(n, trials);
-        percolationStats.runSimulations();
 
         String interval = "95% confidence interval";
         int width = interval.length();
