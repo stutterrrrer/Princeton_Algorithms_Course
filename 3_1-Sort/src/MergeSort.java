@@ -19,6 +19,10 @@ public class MergeSort {
 		sort(arr, aux, left, mid);
 		sort(arr, aux, mid + 1, right);
 
+		// improvement - don't need to merge() 2 halves if
+		// last element of left half is already <= 1st element of right half:
+		if (!less(arr[mid+1], arr[mid])) return;
+
 		merge(arr, aux, left, mid, right);
 	}
 
