@@ -38,36 +38,35 @@ public class BruteCollinearPoints {
         checkedLines = new ArrayList<>();
         int n = points.length;
 
-        // for each segment of 4 points, need the lowest & the highest points
+        // for each segment of 4 points, need the beginning & the end points
         for (int pt1Index = 0; pt1Index < n - 3; pt1Index++) {
             Point pt1 = points[pt1Index];
-            Point beginPt = pt1;
-            Point endPt = pt1;
-
             for (int pt2Index = pt1Index + 1; pt2Index < n - 2; pt2Index++) {
                 Point pt2 = points[pt2Index];
-                // since Point is an immutable class, can't pass beginPt & endPt by reference.
-                beginPt = beginPt.compareTo(pt2) < 0 ? beginPt : pt2;
-                endPt = endPt.compareTo(pt2) > 0 ? endPt : pt2;
-
                 for (int pt3Index = pt2Index + 1; pt3Index < n - 1; pt3Index++) {
                     Point pt3 = points[pt3Index];
-                    beginPt = beginPt.compareTo(pt3) < 0 ? beginPt : pt3;
-                    endPt = endPt.compareTo(pt3) > 0 ? endPt : pt3;
-
                     for (int pt4Index = pt3Index + 1; pt4Index < n; pt4Index++) {
                         Point pt4 = points[pt4Index];
-                        beginPt = beginPt.compareTo(pt4) < 0 ? beginPt : pt4;
-                        endPt = endPt.compareTo(pt4) > 0 ? endPt : pt4;
 
                         double slope = pt1.slopeTo(pt2);
                         if (pt2.slopeTo(pt3) == slope && pt3.slopeTo(pt4) == slope) {
+                            // find begin and end point out of the 4 points on the line
+                            Point[] fourPoints = new Point[] { pt1, pt2, pt3, pt4 };
+                            Point beginPt = pt1;
+                            Point endPt = pt1;
+                            for (int i = 1; i < 4; i++) {
+                                beginPt = beginPt.compareTo(fourPoints[i]) < 0 ? beginPt :
+                                          fourPoints[i];
+                                endPt = endPt.compareTo(fourPoints[i]) > 0 ? endPt :
+                                          fourPoints[i];
+                            }
+
                             // has this line been checked already?
                             Line thisLine = new Line(pt1, slope);
                             if (checkedLines.contains(thisLine)) continue;
 
-                            checkedLines.add(thisLine);
                             collinearSegments.add(new LineSegment(beginPt, endPt));
+                            checkedLines.add(thisLine);
                         }
                     }
                 }
