@@ -4,19 +4,22 @@ import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 public class FastCollinearPoints {
-    private List<LineSegment> collinearSegments;
+    private static final int BUCKET_SIZE = 50;
     // HashMap not allowed. - implement your own to store the checkedLines.
     // using a List would make the list.contains() search method too slow.
-    private List<Line> checkedLines;
+    private ArrayList<Line>[] checkedLines;
+
+    private List<LineSegment> collinearSegments;
 
     private static class Line {
-        private Point pointOnTheLine;
-        private double lineSlope;
+        // Point's x & y instance variables are private and there are no getters.
+        private final Point pointOnTheLine;
+        private final double lineSlope;
 
         public Line(Point pointOnTheLine, double lineSlope) {
             this.pointOnTheLine = pointOnTheLine;
@@ -34,13 +37,19 @@ public class FastCollinearPoints {
             // if the slope is not the same
             return false;
         }
+
+        public int hashCode() {
+            long temp = Double.doubleToLongBits(lineSlope);
+            return Math.abs((int) (temp ^ (temp >>> 32)));
+        }
     }
 
     public FastCollinearPoints(Point[] points) {
         List<Point> ptsListImmutable = Arrays.stream(points).collect(Collectors.toList());
         List<Point> ptsList = new ArrayList<>(ptsListImmutable);
+        if (ptsList.contains(null)) throw new IllegalArgumentException();
         collinearSegments = new ArrayList<>();
-        checkedLines = new ArrayList<>();
+        checkedLines = new ArrayList[BUCKET_SIZE];
 
         // find all lines.
         while (ptsList.size() > 0) {
@@ -56,7 +65,7 @@ public class FastCollinearPoints {
 
     private void findAllNewLinesThatPassThisPointAndAddToCollinearSegments(List<Point> ptsList,
                                                                            Point thisPt) {
-        ListIterator<Point> iterator = ptsList.listIterator();
+        Iterator<Point> iterator = ptsList.iterator();
         // initialize firstPtOnNewLine to be the first element in the list.
         Point firstPtOnNewLine = iterator.next();
         // if after we find a new firstPtOnNewLine, there's no point after it,
@@ -86,15 +95,24 @@ public class FastCollinearPoints {
                 // only update the checkedLines collection when necessary.
                 // if the count < 4, then this line won't be added to collinearSegments anyway.
                 Line thisLine = new Line(thisPt, thisLineSlope);
-                // if this line has been checked, start next line
-                if (checkedLines.contains(thisLine)) continue;
-
-                collinearSegments.add(new LineSegment(beginPt, endPt));
-                checkedLines.add(thisLine);
+                checkForDuplicaLineAndAddToCollinearSegments(thisLine, beginPt, endPt);
             }
         }
     }
 
+    private void checkForDuplicaLineAndAddToCollinearSegments(Line thisLine,
+                                                              Point beginPt, Point endPt) {
+        int hashValue = thisLine.hashCode() % BUCKET_SIZE;
+
+        if (checkedLines[hashValue] == null)
+            checkedLines[hashValue] = new ArrayList<Line>();
+        ArrayList<Line> linesAtThisHash = checkedLines[hashValue];
+        if (linesAtThisHash.contains(thisLine)) return;
+
+        // if there's no duplicates for this line:
+        collinearSegments.add(new LineSegment(beginPt, endPt));
+        linesAtThisHash.add(thisLine);
+    }
     public int numberOfSegments() {
         return collinearSegments.size();
     }
