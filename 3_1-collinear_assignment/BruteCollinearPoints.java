@@ -34,6 +34,9 @@ public class BruteCollinearPoints {
 
     public BruteCollinearPoints(Point[] points) {
         if (points == null) throw new IllegalArgumentException();
+        for (Point point : points)
+            if (point == null) throw new IllegalArgumentException();
+
         collinearSegments = new ArrayList<>();
         checkedLines = new ArrayList<>();
         int n = points.length;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FastCollinearPoints {
-    private static final int BUCKET_SIZE = 50;
+    private static final int BUCKET_SIZE = 250;
     // HashMap not allowed. - implement your own to store the checkedLines.
     // using a List would make the list.contains() search method too slow.
     private ArrayList<Line>[] checkedLines;
@@ -45,9 +45,12 @@ public class FastCollinearPoints {
     }
 
     public FastCollinearPoints(Point[] points) {
+        if (points == null) throw new IllegalArgumentException();
+        for (Point point : points)
+            if (point == null) throw new IllegalArgumentException();
+
         List<Point> ptsListImmutable = Arrays.stream(points).collect(Collectors.toList());
         List<Point> ptsList = new ArrayList<>(ptsListImmutable);
-        if (ptsList.contains(null)) throw new IllegalArgumentException();
         collinearSegments = new ArrayList<>();
         checkedLines = new ArrayList[BUCKET_SIZE];
 
@@ -113,6 +116,7 @@ public class FastCollinearPoints {
         collinearSegments.add(new LineSegment(beginPt, endPt));
         linesAtThisHash.add(thisLine);
     }
+
     public int numberOfSegments() {
         return collinearSegments.size();
     }
