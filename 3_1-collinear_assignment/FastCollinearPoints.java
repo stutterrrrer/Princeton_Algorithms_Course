@@ -5,12 +5,16 @@ import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 public class FastCollinearPoints {
     private List<LineSegment> collinearSegments;
+    // HashMap not allowed. - implement your own to store the checkedLines.
+    // using a List would make the list.contains() search method too slow.
     private List<Line> checkedLines;
 
-    public static class Line {
+    private static class Line {
         private Point pointOnTheLine;
         private double lineSlope;
 
@@ -33,7 +37,7 @@ public class FastCollinearPoints {
     }
 
     public FastCollinearPoints(Point[] points) {
-        List<Point> ptsListImmutable = Arrays.stream(points).toList();
+        List<Point> ptsListImmutable = Arrays.stream(points).collect(Collectors.toList());
         List<Point> ptsList = new ArrayList<>(ptsListImmutable);
         collinearSegments = new ArrayList<>();
         checkedLines = new ArrayList<>();
@@ -45,39 +49,48 @@ public class FastCollinearPoints {
 
             findAllNewLinesThatPassThisPointAndAddToCollinearSegments(ptsList, thisPt);
             // this point doesn't need to be considered anymore.
-            ptsList.remove(thisPt);
+            // since after sorting thisPt itself will be at index 0 (negative infinity)
+            ptsList.remove(0);
         }
     }
 
     private void findAllNewLinesThatPassThisPointAndAddToCollinearSegments(List<Point> ptsList,
                                                                            Point thisPt) {
-        int n = ptsList.size();
-        for (int i = 0; i < n;) {
-            double thisLineSlope = thisPt.slopeTo(ptsList.get(i));
-            // if this line has been checked, go to next point.
-            Line thisLine = new Line(thisPt, thisLineSlope);
-            if (checkedLines.contains(thisLine)) {
-                i++;
-                continue;
-            }
-            else checkedLines.add(thisLine);
+        ListIterator<Point> iterator = ptsList.listIterator();
+        // initialize firstPtOnNewLine to be the first element in the list.
+        Point firstPtOnNewLine = iterator.next();
+        // if after we find a new firstPtOnNewLine, there's no point after it,
+        // then this line doesn't need to be considered - stop loop.
+        while (iterator.hasNext()) {
+            double thisLineSlope = thisPt.slopeTo(firstPtOnNewLine);
 
-            // this line has at least 1 points - thisPt
-            int thisLinePtsCount = 1;
-            // this line has a beginPoint and an endPoint.
-            Point beginPt = thisPt, endPt = thisPt;
+            // this line has at least 2 points - thisPt & firstPtOnNewLine
+            int thisLinePtsCount = 2;
+            Point beginPt = thisPt.compareTo(firstPtOnNewLine) < 0 ? thisPt : firstPtOnNewLine;
+            Point endPt = beginPt == thisPt ? firstPtOnNewLine : thisPt;
 
             // find all the points on this line
-            while (i < n && thisPt.slopeTo(ptsList.get(i)) == thisLineSlope) {
+            while (iterator.hasNext()) {
+                Point newPoint = iterator.next();
+                if (thisPt.slopeTo(newPoint) != thisLineSlope) {
+                    // a new line started; update the variable for next loop.
+                    firstPtOnNewLine = newPoint;
+                    break;
+                }
                 thisLinePtsCount++;
-                Point newPoint = ptsList.get(i);
                 beginPt = beginPt.compareTo(newPoint) < 0 ? beginPt : newPoint;
                 endPt = endPt.compareTo(newPoint) > 0 ? endPt : newPoint;
-                i++;
             }
-            // when all points on this line have been found:
+
             if (thisLinePtsCount >= 4) {
+                // only update the checkedLines collection when necessary.
+                // if the count < 4, then this line won't be added to collinearSegments anyway.
+                Line thisLine = new Line(thisPt, thisLineSlope);
+                // if this line has been checked, start next line
+                if (checkedLines.contains(thisLine)) continue;
+
                 collinearSegments.add(new LineSegment(beginPt, endPt));
+                checkedLines.add(thisLine);
             }
         }
     }

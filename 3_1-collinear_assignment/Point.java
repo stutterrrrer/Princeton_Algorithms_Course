@@ -60,12 +60,15 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
+        if (that == null) throw new NullPointerException();
         // vertical line or degenerate line segment:
         if (that.x == this.x) {
             return that.y == this.y ?
                    Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         }
-        // horizontal line and normal case:
+        // horizontal line
+        if (this.y == that.y) return 0.0;
+        // normal case
         return (double) (this.y - that.y) / (this.x - that.x);
     }
 
@@ -95,6 +98,7 @@ public class Point implements Comparable<Point> {
     public Comparator<Point> slopeOrder() {
         // 3 points: 1 invoking point and 2 compared argument points.
         Comparator<Point> slopeComparator = (pt1, pt2) -> {
+            if (pt1 == null || pt2 == null) throw new NullPointerException();
             double slopeDifference = this.slopeTo(pt1) - this.slopeTo(pt2);
             if (slopeDifference > 0) return 1;
             if (slopeDifference < 0) return -1;
