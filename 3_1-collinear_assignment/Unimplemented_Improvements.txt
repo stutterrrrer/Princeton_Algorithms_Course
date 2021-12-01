@@ -1,0 +1,7 @@
+do the compares for beginPt and endPt
+
+	only after 4 or more points are found on the same line,
+
+	not for all points.
+
+also check for duplicate points passed in through the points array.
