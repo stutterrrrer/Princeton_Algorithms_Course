@@ -39,7 +39,9 @@ public class Board {
         return board.toString();
     }
 
-    public int dimension() { return n; }
+    public int dimension() {
+        return n;
+    }
 
     private int computeHamming() {
         int distance = 0;
@@ -65,11 +67,17 @@ public class Board {
         return distance;
     }
 
-    public int hamming() { return hamming == -1 ? computeHamming() : hamming; }
+    public int hamming() {
+        return hamming == -1 ? computeHamming() : hamming;
+    }
 
-    public int manhattan() { return manhattan == -1 ? computeManhattan() : manhattan; }
+    public int manhattan() {
+        return manhattan == -1 ? computeManhattan() : manhattan;
+    }
 
-    public boolean isGoal() { return hamming == 0; }
+    public boolean isGoal() {
+        return hamming() == 0;
+    }
 
     public boolean equals(Object compared) {
         if (this == compared) return true;
@@ -94,7 +102,7 @@ public class Board {
         neighbors.add(boardWithBlankAt(rowOfBlank, colOfBlank + 1));
 
         // list may contain null if row or col is out of bounds.
-        while (neighbors.remove(null));
+        while (neighbors.remove(null)) ;
         return neighbors;
     }
 
@@ -135,7 +143,9 @@ public class Board {
         return (tile - 1) / n;
     }
 
-    private int goalTile(int row, int col) { return row * n + col + 1; }
+    private int goalTile(int row, int col) {
+        return row * n + col + 1;
+    }
 
     public static void main(String[] args) {
         // scan input, because both scanner and paths class
@@ -160,6 +170,12 @@ public class Board {
         for (Board neighbor : board.neighbors())
             System.out.println(neighbor + (neighbor.isGoal() ? "goal" : "not goal"));
 
-        System.out.println("twin:" + '\n' + board.twin());
+        final Board twin = board.twin();
+        System.out.println("twin:" + '\n' + twin);
+        System.out.println("twin is " + (twin.equals(board) ? "" : "not") + "equal");
+
+        Board dupBoard = new Board(grid);
+        System.out.println("duplicate is " +
+                                   (dupBoard.equals(board) ? "" : "not") + "equal");
     }
 }
