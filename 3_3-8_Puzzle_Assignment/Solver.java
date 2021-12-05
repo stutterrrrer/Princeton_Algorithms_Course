@@ -77,7 +77,8 @@ public class Solver {
 
     private void addNeighbor(MinPQ<Node> pq, Node node) {
         int prevMoves = node.prevMoves;
-        for (Board neighbor : node.board.neighbors()) {
+        final Iterable<Board> neighbors = node.board.neighbors();
+        for (Board neighbor : neighbors) {
             if (node.prevNode != null &&
                     neighbor.equals(node.prevNode.board))
                 continue;

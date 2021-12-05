@@ -15,8 +15,7 @@ public class Board {
         n = grid.length;
         tiles = new int[n][n];
         for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                tiles[i][j] = grid[i][j];
+            tiles[i] = grid[i].clone();
 
         // find the blank tile.
         for (int row = 0; row < n; row++) {
@@ -30,10 +29,13 @@ public class Board {
     }
 
     public String toString() {
-        StringBuilder board = new StringBuilder(n + '\n');
+        StringBuilder board = new StringBuilder();
+        board.append(n + "\n");
+        int digits = n * n / 10 + 1;
+        String format = "%" + digits + "s ";
         for (int[] row : tiles) {
             for (int tile : row)
-                board.append(" " + tile);
+                board.append(String.format(format, tile));
             board.append('\n');
         }
         return board.toString();
@@ -110,8 +112,7 @@ public class Board {
         if (row < 0 || col < 0 || row >= n || col >= n) return null;
         int[][] neighborBoard = new int[n][n];
         for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                neighborBoard[i][j] = tiles[i][j];
+                neighborBoard[i] = tiles[i].clone();
         // swap the blank tile with the slid tile
         neighborBoard[rowOfBlank][colOfBlank] = tiles[row][col];
         neighborBoard[row][col] = 0;
@@ -120,12 +121,11 @@ public class Board {
 
     public Board twin() {
         // don't want to do random exchange because don't know how long it takes.
-        int row1 = (rowOfBlank + 1) % n, col1 = (colOfBlank + 1) % n;
-        int row2 = (rowOfBlank + 2) % n, col2 = (colOfBlank + 2) % n;
+        int row1 = (rowOfBlank + 1) % n, col1 = (colOfBlank) % n;
+        int row2 = (rowOfBlank) % n, col2 = (colOfBlank + 1) % n;
         int[][] twinBoard = new int[n][n];
         for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                twinBoard[i][j] = tiles[i][j];
+                twinBoard[i] = tiles[i].clone();
         twinBoard[row1][col1] = tiles[row2][col2];
         twinBoard[row2][col2] = tiles[row1][col1];
         return new Board(twinBoard);
