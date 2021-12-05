@@ -26,20 +26,20 @@ public class Solver {
         }
     }
 
-    private MinPQ<Node> minPQ = new MinPQ<>();
-    private MinPQ<Node> twinPQ = new MinPQ<>();
-
     // null if not solvable.
     private Node solvedNode;
 
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException();
-        minPQ.insert(new Node(initial, 0, null));
-        twinPQ.insert(new Node(initial.twin(), 0, null));
-        solve();
+        solve(initial);
     }
 
-    private void solve() {
+    private void solve(Board initial) {
+        MinPQ<Node> minPQ = new MinPQ<>();
+        MinPQ<Node> twinPQ = new MinPQ<>();
+        minPQ.insert(new Node(initial, 0, null));
+        twinPQ.insert(new Node(initial.twin(), 0, null));
+
         while (true) {
             Node node = minPQ.delMin();
             Node twinNode = twinPQ.delMin();
@@ -58,6 +58,17 @@ public class Solver {
         }
     }
 
+    private void addNeighbor(MinPQ<Node> pq, Node node) {
+        int prevMoves = node.prevMoves;
+        final Iterable<Board> neighbors = node.board.neighbors();
+        for (Board neighbor : neighbors) {
+            if (node.prevNode != null &&
+                    neighbor.equals(node.prevNode.board))
+                continue;
+            pq.insert(new Node(neighbor, prevMoves + 1, node));
+        }
+    }
+
     public boolean isSolvable() {
         return solvedNode != null;
     }
@@ -73,17 +84,6 @@ public class Solver {
         for (Node tracker = solvedNode; tracker != null; tracker = tracker.prevNode)
             trace.push(tracker.board);
         return trace;
-    }
-
-    private void addNeighbor(MinPQ<Node> pq, Node node) {
-        int prevMoves = node.prevMoves;
-        final Iterable<Board> neighbors = node.board.neighbors();
-        for (Board neighbor : neighbors) {
-            if (node.prevNode != null &&
-                    neighbor.equals(node.prevNode.board))
-                continue;
-            pq.insert(new Node(neighbor, prevMoves + 1, node));
-        }
     }
 
     public static void main(String[] args) {
@@ -105,8 +105,6 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
-            for (Board board : solver.solution())
-                StdOut.println(board);
         }
     }
 }

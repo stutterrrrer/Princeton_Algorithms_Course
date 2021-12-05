@@ -87,12 +87,7 @@ public class Board {
         Board cmpBoard = (Board) compared;
 
         if (n != cmpBoard.n) return false;
-        for (int row = 0; row < n; row++)
-            for (int col = 0; col < n; col++)
-                if (tiles[row][col] != cmpBoard.tiles[row][col])
-                    return false;
-
-        return true;
+        return toString().equals(compared.toString());
     }
 
     public Iterable<Board> neighbors() {
