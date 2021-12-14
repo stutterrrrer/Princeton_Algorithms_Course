@@ -93,16 +93,21 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public Key select(int rank) {
-		if (rank < 0 || rank >= subTreeSize(root)) throw new IllegalArgumentException();
-		Node visited = root;
-		// since rank is valid, visited.left or visited.right
-		// in this loop will never be null.
-		while (true) {
-			int rankOfVisited = rank(visited.key);
-			if (rank < rankOfVisited) visited = visited.left;
-			else if (rank > rankOfVisited) visited = visited.right;
-			else return visited.key;
-		}
+		return selectFromSubTree(root, rank).key;
+	}
+
+	private Node selectFromSubTree(Node subTreeRoot , int rank) {
+		if (subTreeRoot == null) return null;
+		int leftSubTreeSize = subTreeSize(subTreeRoot.left);
+		if (leftSubTreeSize > rank)
+			return selectFromSubTree(subTreeRoot.left, rank);
+		else if (leftSubTreeSize < rank)
+			// if the selected node is in the right sub tree
+			// then the selected node's rank in the whole tree =
+			// (left sub-tree size) + (this node, 1) + !!!(its rank in the right sub-tree)
+			return selectFromSubTree(subTreeRoot.right, rank - leftSubTreeSize - 1);
+		else
+			return subTreeRoot;
 	}
 
 	public Iterable<Key> keys() {
