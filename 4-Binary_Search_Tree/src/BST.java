@@ -4,7 +4,7 @@ import java.util.Queue;
 // no duplicates; override previous value of a key
 public class BST<Key extends Comparable<Key>, Value> {
 
-	private Node root;
+	private Node treeRoot;
 
 	private class Node {
 		private Key key;
@@ -20,7 +20,7 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public void put(Key key, Value val) {
-		root = insertNodeOrOverrideVal(root, key, val);
+		treeRoot = insertNodeOrOverrideVal(treeRoot, key, val);
 	}
 
 	private Node insertNodeOrOverrideVal(Node visitedNode, Key key, Value val) {
@@ -45,7 +45,7 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public Value get(Key key) {
-		Node visitedNode = root;
+		Node visitedNode = treeRoot;
 		while (visitedNode != null) {
 			int cmp = key.compareTo(visitedNode.key);
 			if (cmp < 0) visitedNode = visitedNode.left;
@@ -57,7 +57,7 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public Key floor(Key keyAboveFloor) {
-		Node floorNode = floorNode(root, keyAboveFloor);
+		Node floorNode = floorNode(treeRoot, keyAboveFloor);
 		if (floorNode == null) return null;
 		return floorNode.key;
 	}
@@ -76,7 +76,7 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public int rank(Key rankedKey) {
-		return rankInSubTree(rankedKey, root);
+		return rankInSubTree(rankedKey, treeRoot);
 	}
 
 	private int rankInSubTree(Key rankedKey, Node subTreeRoot) {
@@ -93,10 +93,10 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public Key select(int rank) {
-		return selectFromSubTree(root, rank).key;
+		return selectFromSubTree(treeRoot, rank).key;
 	}
 
-	private Node selectFromSubTree(Node subTreeRoot , int rank) {
+	private Node selectFromSubTree(Node subTreeRoot, int rank) {
 		if (subTreeRoot == null) return null;
 		int leftSubTreeSize = subTreeSize(subTreeRoot.left);
 		if (leftSubTreeSize > rank)
@@ -111,32 +111,51 @@ public class BST<Key extends Comparable<Key>, Value> {
 	}
 
 	public Iterable<Key> keys() {
-		Queue<Key> queue = new LinkedList<>();
-		inOrder(root, queue);
-		return queue;
+		return keysInRange(min(treeRoot).key, max(treeRoot).key);
 	}
 
-	private void inOrder(Node visited, Queue<Key> queue) {
-		if (visited == null) return;
-		inOrder(visited.left, queue);
-		queue.add(visited.key);
-		inOrder(visited.right, queue);
+	public Iterable<Key> keysInRange(Key low, Key high) {
+		Queue<Key> orderedKeysInRange = new LinkedList<>();
+		rangeSearch(treeRoot, orderedKeysInRange, low, high);
+		return orderedKeysInRange;
+	}
+
+	public void rangeSearch(Node root, Queue<Key> orderedKeysInRange,
+							Key low, Key high) {
+		if (root == null) return;
+		int cmpLow = low.compareTo(root.key);
+		int cmpHigh = high.compareTo(root.key);
+		// does a variation of in-order traversal that's capped and floored:
+		if (cmpLow < 0)
+			rangeSearch(root.left, orderedKeysInRange, low, high);
+		if (cmpLow <= 0 && cmpHigh >= 0)
+			orderedKeysInRange.add(root.key);
+		if (cmpHigh > 0)
+			rangeSearch(root.right, orderedKeysInRange, low, high);
 	}
 
 	public Value max() {
+		return max(treeRoot).val;
+	}
+
+	private Node max(Node root) {
 		Node visited;
 		for (visited = root; visited.right != null; visited = visited.right) ;
-		return visited.val;
+		return visited;
 	}
 
 	public Value min() {
+		return min(treeRoot).val;
+	}
+
+	private Node min(Node root) {
 		Node visited;
 		for (visited = root; visited.left != null; visited = visited.left) ;
-		return visited.val;
+		return visited;
 	}
 
 	public int size() {
-		return subTreeSize(root);
+		return subTreeSize(treeRoot);
 	}
 
 	private int subTreeSize(Node node) {
