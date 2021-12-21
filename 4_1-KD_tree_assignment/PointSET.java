@@ -50,7 +50,7 @@ public class PointSET {
     public Point2D nearest(Point2D pt) {
         if (pt == null) throw new IllegalArgumentException();
         if (isEmpty()) return null;
-        return Collections.min(ptSet, Comparator.comparing(i -> i.distanceTo(pt)));
+        return Collections.min(ptSet, Comparator.comparing(i -> i.distanceSquaredTo(pt)));
     }
 
     public static void main(String[] args) {
