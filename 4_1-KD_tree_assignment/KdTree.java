@@ -246,7 +246,7 @@ public class KdTree {
         kdTree.draw();
 
         // test the range method
-        StdDraw.setPenColor(StdDraw.GREEN);
+        StdDraw.setPenColor(StdDraw.MAGENTA);
         StdDraw.setPenRadius(0.008);
         double xMin = StdRandom.uniform(0, 0.5),
                 yMin = StdRandom.uniform(0, 0.5);
@@ -256,12 +256,11 @@ public class KdTree {
         for (Point2D pt : kdTree.range(rect)) pt.draw();
 
         // test the nearest method:
-        StdDraw.setPenColor(StdDraw.PRINCETON_ORANGE);
-        StdDraw.setPenRadius(0.01);
+        StdDraw.setPenColor(StdDraw.GREEN);
+        StdDraw.setPenRadius(0.02);
         Point2D randPt = new Point2D(StdRandom.uniform(), StdRandom.uniform());
         Point2D nearest = kdTree.nearest(randPt);
         randPt.draw();
-        nearest.draw();
         StdDraw.setPenRadius(0.005);
         StdDraw.line(randPt.x(), randPt.y(), nearest.x(), nearest.y());
 
