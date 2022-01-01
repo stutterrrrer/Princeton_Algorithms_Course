@@ -17,8 +17,11 @@ public class WordNet {
         // read the hypernyms file (less content) to get the vertex count
         In fileReader = new In(hypernyms); // uses java.io.File to read
         // decrement count by 1, because of the last empty line in the txt file
-        int synsetCount = -1;
-        while (fileReader.hasNextLine()) synsetCount++;
+        int synsetCount = 0;
+        while (fileReader.hasNextLine()) {
+            fileReader.readLine();
+            synsetCount++;
+        }
         // file-reading is not done with a try-with block, need to close manually
         fileReader.close();
 
@@ -71,7 +74,6 @@ public class WordNet {
         fileReader.close();
     }
 
-
     public Iterable<String> nouns() {
         return nounIDs.keySet();
     }
@@ -99,5 +101,10 @@ public class WordNet {
         int shortestCommonAncestor =
                 sap.ancestor(synsetsContainingA, synsetsContainingB);
         return synsetArr[shortestCommonAncestor];
+    }
+
+    public static void main(String[] args) {
+        WordNet net = new WordNet("synsets.txt", "hypernyms.txt");
+        System.out.println(net.sap("Aegean_island", "Aegina"));
     }
 }
