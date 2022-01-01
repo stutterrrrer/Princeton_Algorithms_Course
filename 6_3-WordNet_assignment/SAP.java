@@ -12,11 +12,12 @@ public class SAP {
     private final Digraph digraph;
 
     public SAP(Digraph digraph) {
-        this.digraph = digraph;
+        this.digraph = new Digraph(digraph);
     }
 
     private int[] ancestorAndLength(Iterable<Integer> v, Iterable<Integer> w) {
-        if (containsNull(v) || containsNull(w)) throw new IllegalArgumentException();
+        // methods in digraph or BFS can throw exc if vertex out of bounds.
+        if (illegal(v) || illegal(w)) throw new IllegalArgumentException();
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(digraph, v);
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(digraph, w);
 
@@ -40,10 +41,14 @@ public class SAP {
         return new int[] { sca, minDist };
     }
 
-    private boolean containsNull(Iterable<Integer> v) {
+    private boolean illegal(Iterable<Integer> v) {
         if (v == null) return true;
-        for (Integer i : v) if (i == null) return true;
-        return false;
+        int count = 0;
+        for (Integer i : v) {
+            count++;
+            if (i == null) return true;
+        }
+        return count == 0;
     }
 
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
