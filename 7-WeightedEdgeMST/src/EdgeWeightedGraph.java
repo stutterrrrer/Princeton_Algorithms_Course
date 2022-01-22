@@ -19,7 +19,16 @@ public class EdgeWeightedGraph {
 		adjListsOfEdges[w].add(edge);
 	}
 
-	public Iterable<Edge> adjEdges (int v) {
+	public Iterable<Edge> adjEdges(int v) {
 		return adjListsOfEdges[v];
+	}
+
+	public Iterable<Edge> edges() {
+		// not implemented; returns all edges (no duplicates)
+		return null;
+	}
+
+	public int V() {
+		return V;
 	}
 }
