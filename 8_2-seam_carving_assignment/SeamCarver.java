@@ -92,12 +92,13 @@ public class SeamCarver {
         // update the affected pixels' energy
         for (int row = 0; row < height(); row++) {
             final int seamCol = seam[row];
-            pixelsEnergy[row][seamCol - 1] = energy(seamCol - 1, row);
+            if (seamCol != 0)
+                pixelsEnergy[row][seamCol - 1] = energy(seamCol - 1, row);
             pixelsEnergy[row][seamCol] = energy(seamCol, row);
         }
         double[][] newEnergy = new double[height()][width() - 1];
         for (int row = 0; row < height(); row++)
-            newEnergy[row] = Arrays.copyOfRange(pixelsEnergy[row], 0, width() - 1);
+            newEnergy[row] = Arrays.copyOfRange(pixelsEnergy[row], 0, width());
         pixelsEnergy = newEnergy;
     }
 
