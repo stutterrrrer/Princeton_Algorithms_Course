@@ -1,23 +1,21 @@
 import edu.princeton.cs.algs4.Picture;
 
 import java.awt.Color;
+import java.util.Arrays;
 
 public class SeamCarver {
 
     // the grid is what the image looks like.
     // the image's pixel at [row, col] corresponds to pixelsRGB[row][col]
-    private int width;
-    private int height;
     private int[][] pixelsRGB;
     private double[][] pixelsEnergy;
-    private boolean energyTransposed;
 
     public SeamCarver(Picture picture) {
         // creates a deep copy - avoid mutating original picture.
         if (picture == null) throw new IllegalArgumentException();
 
-        width = picture.width();
-        height = picture.height();
+        int width = picture.width();
+        int height = picture.height();
         // fill the pixels' RGB and energy grid
         pixelsRGB = new int[height][width];
         pixelsEnergy = new double[height][width];
@@ -31,20 +29,20 @@ public class SeamCarver {
     }
 
     public Picture picture() {
-        Picture pic = new Picture(width, height);
-        for (int row = 0; row < height; row++)
-            for (int col = 0; col < width; col++)
+        Picture pic = new Picture(width(), height());
+        for (int row = 0; row < height(); row++)
+            for (int col = 0; col < width(); col++)
                 pic.setRGB(col, row, pixelsRGB[row][col]);
 
         return pic;
     }
 
     public int width() {
-        return width;
+        return pixelsRGB[0].length;
     }
 
     public int height() {
-        return height;
+        return pixelsRGB.length;
     }
 
     public double energy(int col, int row) {
@@ -66,69 +64,56 @@ public class SeamCarver {
     }
 
     public int[] findVerticalSeam() {
-        if (energyTransposed) pixelsEnergy = transposeEnergy();
         MinSeam vertSeam = new MinSeam(pixelsEnergy);
         return vertSeam.minSeam();
     }
 
     public void removeVerticalSeam(int[] seam) {
         if (seam == null ||
-                width <= 1 ||
-                seam.length != height)
+                width() <= 1 ||
+                seam.length != height())
             throw new IllegalArgumentException();
         for (int i = 0; i < seam.length - 1; i++)
             if (Math.abs(seam[i] - seam[i + 1]) > 1)
                 throw new IllegalArgumentException();
 
         // remove seam (by shifting the RGB & energy grid to the left)
-        if (energyTransposed) pixelsEnergy = transposeEnergy();
-        for (int row = 0; row < height; row++)
-            for (int col = seam[row]; col < width - 1; col++) {
+        for (int row = 0; row < height(); row++)
+            for (int col = seam[row]; col < width() - 1; col++) {
                 pixelsRGB[row][col] = pixelsRGB[row][col + 1];
                 pixelsEnergy[row][col] = pixelsEnergy[row][col + 1];
             }
 
+        int[][] newPixels = new int[height()][width() - 1];
+        for (int row = 0; row < height(); row++)
+            newPixels[row] = Arrays.copyOfRange(pixelsRGB[row], 0, width() - 1);
+        pixelsRGB = newPixels;
+
         // update the affected pixels' energy
-        for (int row = 0; row < height; row++) {
+        for (int row = 0; row < height(); row++) {
             final int seamCol = seam[row];
             pixelsEnergy[row][seamCol - 1] = energy(seamCol - 1, row);
             pixelsEnergy[row][seamCol] = energy(seamCol, row);
         }
-
-        width--;
+        double[][] newEnergy = new double[height()][width() - 1];
+        for (int row = 0; row < height(); row++)
+            newEnergy[row] = Arrays.copyOfRange(pixelsEnergy[row], 0, width() - 1);
+        pixelsEnergy = newEnergy;
     }
 
     public int[] findHorizontalSeam() {
-        if (!energyTransposed) pixelsEnergy = transposeEnergy();
+        transposeEnergy();
         MinSeam horiSeam = new MinSeam(pixelsEnergy);
+        transposeEnergy();
         return horiSeam.minSeam();
     }
 
     public void removeHorizontalSeam(int[] seam) {
-        if (seam == null ||
-                height <= 1 ||
-                seam.length != width)
-            throw new IllegalArgumentException();
-        for (int i = 0; i < seam.length - 1; i++)
-            if (Math.abs(seam[i] - seam[i + 1]) > 1)
-                throw new IllegalArgumentException();
-
-        if (energyTransposed) pixelsEnergy = transposeEnergy();
-        // shift up
-        for (int col = 0; col < width; col++)
-            for (int row = seam[col]; row < height - 1; row++) {
-                pixelsRGB[row][col] = pixelsRGB[row + 1][col];
-                pixelsEnergy[row][col] = pixelsEnergy[row + 1][col];
-            }
-
-        // update affected pixels' energy
-        for (int col = 0; col < width; col++) {
-            final int seamRow = seam[col];
-            pixelsEnergy[seamRow - 1][col] = energy(col, seamRow - 1);
-            pixelsEnergy[seamRow][col] = energy(col, seamRow);
-        }
-
-        height--;
+        transposeEnergy();
+        transposePixels();
+        removeVerticalSeam(seam);
+        transposeEnergy();
+        transposePixels();
     }
 
     private int sqrGradient(Color pixel1, Color pixel2) {
@@ -138,7 +123,7 @@ public class SeamCarver {
         return redDiffSqr + greenDiffSqr + blueDiffSqr;
     }
 
-    private double[][] transposeEnergy() {
+    private void transposeEnergy() {
         final int newWidth = pixelsEnergy.length;
         final int newHeight = pixelsEnergy[0].length;
         double[][] transGrid = new double[newHeight][newWidth];
@@ -147,8 +132,19 @@ public class SeamCarver {
             for (int col = 0; col < newWidth; col++)
                 transGrid[row][col] = pixelsEnergy[col][row];
 
-        energyTransposed = !energyTransposed;
-        return transGrid;
+        pixelsEnergy = transGrid;
+    }
+
+    private void transposePixels() {
+        final int newWidth = pixelsRGB.length;
+        final int newHeight = pixelsRGB[0].length;
+        int[][] transGrid = new int[newHeight][newWidth];
+
+        for (int row = 0; row < newHeight; row++)
+            for (int col = 0; col < newWidth; col++)
+                transGrid[row][col] = pixelsRGB[col][row];
+
+        pixelsRGB = transGrid;
     }
 
     public static void main(String[] args) {

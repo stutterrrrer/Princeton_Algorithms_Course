@@ -16,6 +16,12 @@ public class MinSeam {
         width = pixelsEnergy[0].length;
         prevPixelCols = new int[height][width];
         distTo = new double[height][width];
+        // initialize distTo grid
+        for (int row = 0; row < height; row++)
+            for (int col = 0; col < width; col++) {
+                distTo[row][col] = row == 0 ? pixelsEnergy[row][col]
+                                            : Double.POSITIVE_INFINITY;
+            }
 
         findSPT();
     }
