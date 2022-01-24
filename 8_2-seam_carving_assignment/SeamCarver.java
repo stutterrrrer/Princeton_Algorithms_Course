@@ -74,7 +74,8 @@ public class SeamCarver {
                 seam.length != height())
             throw new IllegalArgumentException();
         for (int i = 0; i < seam.length - 1; i++)
-            if (Math.abs(seam[i] - seam[i + 1]) > 1)
+            if (Math.abs(seam[i] - seam[i + 1]) > 1 ||
+                    seam[i] < 0 || seam[i] >= width())
                 throw new IllegalArgumentException();
 
         // remove seam (by shifting the RGB & energy grid to the left)
@@ -94,7 +95,8 @@ public class SeamCarver {
             final int seamCol = seam[row];
             if (seamCol != 0)
                 pixelsEnergy[row][seamCol - 1] = energy(seamCol - 1, row);
-            pixelsEnergy[row][seamCol] = energy(seamCol, row);
+            if (seamCol != width())
+                pixelsEnergy[row][seamCol] = energy(seamCol, row);
         }
         double[][] newEnergy = new double[height()][width() - 1];
         for (int row = 0; row < height(); row++)
