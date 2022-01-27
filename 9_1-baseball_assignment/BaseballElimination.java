@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -127,7 +127,9 @@ public class BaseballElimination {
     }
 
     public Iterable<String> teams() {
-        return Arrays.stream(teamArr.clone()).toList();
+        List<String> teamsList = new ArrayList<>(numberOfTeams());
+        Collections.addAll(teamsList, teamArr);
+        return teamsList;
     }
 
     public int wins(String team) {
@@ -165,7 +167,7 @@ public class BaseballElimination {
     public static void main(String[] args) {
         BaseballElimination division = new BaseballElimination(args[0]);
         // test the constructor recorded the entries correctly.
-        printStats(division);
+        // printStats(division);
 
         // provided test:
         for (String team : division.teams()) {
