@@ -33,16 +33,17 @@ public class BaseballElimination {
         // can assume all input files conform to the specified format
         for (int teamI = 0; teamI < teamCount; teamI++) {
             String[] splits = fileReader.readLine().split(" +");
-            teamArr[teamI] = splits[0];
-            teamMap.put(splits[0], teamI);
-            wins[teamI] = Integer.parseInt(splits[1]);
+            int first = splits[0].isEmpty() ? 1 : 0;
+            teamArr[teamI] = splits[first];
+            teamMap.put(splits[first], teamI);
+            wins[teamI] = Integer.parseInt(splits[first + 1]);
             teamWithMostWinsSoFar = wins[teamI] >= wins[teamWithMostWinsSoFar] ?
                                     teamI : teamWithMostWinsSoFar;
-            losses[teamI] = Integer.parseInt(splits[2]);
-            remaining[teamI] = Integer.parseInt(splits[3]);
+            losses[teamI] = Integer.parseInt(splits[first + 2]);
+            remaining[teamI] = Integer.parseInt(splits[first + 3]);
             // matches[i][<i] will have been filled in previous iterations, and matches[i][i] = 0.
-            for (int entry = 4 + teamI + 1; entry < splits.length; entry++) {
-                int teamJ = entry - 4;
+            for (int entry = first + 4 + teamI + 1; entry < splits.length; entry++) {
+                int teamJ = entry - first - 4;
                 final int iVSj = Integer.parseInt(splits[entry]);
                 matches[teamI][teamJ] = iVSj;
                 matches[teamJ][teamI] = iVSj;
