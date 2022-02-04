@@ -23,7 +23,7 @@ public class ThreeWayRadixQuicksort {
 	}
 
 	private static int charAt(String str, int digit) {
-		if (digit < str.length) return str.charAt(digit);
+		if (digit < str.length()) return str.charAt(digit);
 		else return -1;
 	}
 
