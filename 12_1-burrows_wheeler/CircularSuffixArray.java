@@ -1,19 +1,14 @@
+import edu.princeton.cs.algs4.LSD;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 public class CircularSuffixArray {
 
     private final int strLength;
     private int[] sortedArrOriginalIndex;
-
-    private class SuffixWithOriginalIndex {
-        private String str;
-        private int originalIndex;
-
-        public SuffixWithOriginalIndex(String str, int originalIndex) {
-            this.str = str;
-            this.originalIndex = originalIndex;
-        }
-    }
 
     public CircularSuffixArray(String s) {
         if (s == null) throw new IllegalArgumentException();
@@ -27,41 +22,22 @@ public class CircularSuffixArray {
 
     private void buildCircularSuffixArray(String s) {
         String strRepeated = s + s;
-        SuffixWithOriginalIndex[] circularSuffixArray = new SuffixWithOriginalIndex[strLength];
+        String[] circularSuffixArray = new String[strLength];
+        // Queue: in case of identical suffixes
+        HashMap<String, Queue<Integer>> strIndexInOriginalArr = new HashMap<>(strLength);
         // build the original suffix array
         for (int i = 0; i < strLength; i++) {
             final String circularSuffix = strRepeated.substring(i, i + strLength);
-            circularSuffixArray[i] = new SuffixWithOriginalIndex(circularSuffix, i);
+            circularSuffixArray[i] = circularSuffix;
+            strIndexInOriginalArr.putIfAbsent(circularSuffix, new LinkedList<>());
+            strIndexInOriginalArr.get(circularSuffix).add(i);
         }
 
         // LSD radix sort since all strings have the same length:
-        radixLSDOnCustomType(circularSuffixArray, strLength);
+        LSD.sort(circularSuffixArray, strLength);
         // build the original index array
         for (int i = 0; i < strLength; i++)
-            sortedArrOriginalIndex[i] = circularSuffixArray[i].originalIndex;
-    }
-
-    private void radixLSDOnCustomType(SuffixWithOriginalIndex[] circularSuffixArray,
-                                      int strLen) {
-        int radix = 256; // default: extended ASCII alphabet
-        int n = circularSuffixArray.length; // actually just equal to strLen;
-        SuffixWithOriginalIndex[] aux = new SuffixWithOriginalIndex[n];
-
-        // from right (LSD) to left, do key-indexed counting for each char
-        for (int d = strLen - 1; d >= 0; d--) {
-            int[] frequencies = new int[radix + 1];
-            for (SuffixWithOriginalIndex suffix : circularSuffixArray)
-                frequencies[suffix.str.charAt(d) + 1]++; // the 'd'th char
-
-            for (int r = 0; r < radix; r++)
-                frequencies[r + 1] += frequencies[r];
-            int[] indexForNext = frequencies;
-
-            for (SuffixWithOriginalIndex suffix : circularSuffixArray)
-                aux[indexForNext[suffix.str.charAt(d)]++] = suffix;
-
-            System.arraycopy(aux, 0, circularSuffixArray, 0, n);
-        }
+            sortedArrOriginalIndex[i] = strIndexInOriginalArr.get(circularSuffixArray[i]).poll();
     }
 
     public int length() {
