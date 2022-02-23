@@ -1,12 +1,12 @@
-import edu.princeton.cs.algs4.Quick3string;
+import edu.princeton.cs.algs4.LSD;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 public class CircularSuffixArray {
 
-    private String strRepeated;
     private final int strLength;
     private int[] sortedArrOriginalIndex;
 
@@ -15,28 +15,29 @@ public class CircularSuffixArray {
         // takes advantage of String's subString method - saves space
         // compared to if each string in the circular suffix array has
         // a different underlying char array.
-        strRepeated = s + s;
         strLength = s.length();
         sortedArrOriginalIndex = new int[strLength];
-        buildCircularSuffixArray();
+        buildCircularSuffixArray(s);
     }
 
-    private void buildCircularSuffixArray() {
+    private void buildCircularSuffixArray(String s) {
+        String strRepeated = s + s;
         String[] circularSuffixArray = new String[strLength];
-        // HashMap<String,Integer> : string as key, string's index in the original array as value.
-        Map<String, Integer> strIndexInOriginalArr = new HashMap<>(strLength);
+        // Queue: in case of identical suffixes
+        HashMap<String, Queue<Integer>> strIndexInOriginalArr = new HashMap<>(strLength);
         // build the original suffix array
         for (int i = 0; i < strLength; i++) {
             final String circularSuffix = strRepeated.substring(i, i + strLength);
             circularSuffixArray[i] = circularSuffix;
-            strIndexInOriginalArr.put(circularSuffix, i);
+            strIndexInOriginalArr.putIfAbsent(circularSuffix, new LinkedList<>());
+            strIndexInOriginalArr.get(circularSuffix).add(i);
         }
 
-        // 3-way radix quick sort:
-        Quick3string.sort(circularSuffixArray);
+        // LSD radix sort since all strings have the same length:
+        LSD.sort(circularSuffixArray, strLength);
         // build the original index array
         for (int i = 0; i < strLength; i++)
-            sortedArrOriginalIndex[i] = strIndexInOriginalArr.get(circularSuffixArray[i]);
+            sortedArrOriginalIndex[i] = strIndexInOriginalArr.get(circularSuffixArray[i]).poll();
     }
 
     public int length() {
