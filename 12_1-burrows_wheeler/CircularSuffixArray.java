@@ -1,4 +1,4 @@
-import edu.princeton.cs.algs4.LSD;
+import edu.princeton.cs.algs4.Quick3string;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,8 +33,9 @@ public class CircularSuffixArray {
             strIndexInOriginalArr.get(circularSuffix).add(i);
         }
 
-        // LSD radix sort since all strings have the same length:
-        LSD.sort(circularSuffixArray, strLength);
+        // should use LSD radix sort since all strings have the same length:
+        // but algs4's implementation has bugs apparently.
+        Quick3string.sort(circularSuffixArray);
         // build the original index array
         for (int i = 0; i < strLength; i++)
             sortedArrOriginalIndex[i] = strIndexInOriginalArr.get(circularSuffixArray[i]).poll();
